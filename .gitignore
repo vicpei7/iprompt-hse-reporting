@@ -1,0 +1,7 @@
+node_modules/
+uploads/
+*.pdf
+test_*.js
+create_dummy_pdf.js
+find_ip.ps1
+public/test_hse_report.txt

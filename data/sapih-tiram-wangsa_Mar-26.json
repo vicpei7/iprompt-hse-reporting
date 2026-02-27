@@ -1,0 +1,267 @@
+{
+  "table1": {
+    "Manhours": {
+      "P2": 15000,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Fatality": {
+      "P2": 0,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Loss Time Injury (LTI)": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Loss Time Injury Frequency (LTIF)": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Major Oil Spills": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Major Fire": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Major Loss of Primary Containment (LOPC)": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Medical Treatment / Restricted Work Case (MTC/RWC)": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "First Aid Cases (FAC)": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Property Damage": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Near Miss Case": {
+      "P2": 3,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Unsafe Act / Unsafe Condition": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    },
+    "Stop Work": {
+      "P2": null,
+      "P3": null,
+      "P6": null,
+      "P7": null,
+      "P8": null,
+      "P9": null
+    }
+  },
+  "table2": {
+    "Permanent Total / Partial Disability (PPD/PTD)": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    },
+    "Management Walkabout": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    },
+    "HSSE Safe Work Campaign": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    },
+    "HSSE Training Compliance": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    },
+    "HSSE Audit": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    },
+    "Safety Training": {
+      "P2": {
+        "planned": null,
+        "actual": null
+      },
+      "P3": {
+        "planned": null,
+        "actual": null
+      },
+      "P6": {
+        "planned": null,
+        "actual": null
+      },
+      "P7": {
+        "planned": null,
+        "actual": null
+      },
+      "P8": {
+        "planned": null,
+        "actual": null
+      },
+      "P9": {
+        "planned": null,
+        "actual": null
+      }
+    }
+  },
+  "lastUpdated": "2026-02-27T11:06:46.747Z"
+}

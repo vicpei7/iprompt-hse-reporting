@@ -495,6 +495,26 @@ body {
 
 .data-table thead th.contract-group {
   border-left: 2px solid rgba(255,255,255,0.3);
+  min-width: 110px;
+}
+
+/* Uniform column widths for cumulative tables */
+#cumulativeTable2 {
+  table-layout: fixed;
+}
+
+#cumulativeTable2 thead th:first-child {
+  width: 280px;
+}
+
+#cumulativeTable2 thead th.contract-group {
+  width: auto;
+}
+
+#cumulativeTable2 thead th.sub-header {
+  width: 55px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 .data-table tbody td {

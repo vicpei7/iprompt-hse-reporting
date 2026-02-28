@@ -196,19 +196,52 @@ function renderCumulativeTable1(table1Data, contracts) {
   const table = document.getElementById('cumulativeTable1');
   const headers = contracts.map(c => `<th>${c.label}</th>`).join('');
 
+  // Pre-calculate totals for Manhours and LTI (needed for LTIF formula)
+  const manhoursByContract = {};
+  const ltiByContract = {};
+  let totalManhours = 0;
+  let totalLTI = 0;
+  contracts.forEach(c => {
+    const mh = parseFloat(table1Data['Manhours']?.[c.id]) || 0;
+    const lti = parseFloat(table1Data['Loss Time Injury (LTI)']?.[c.id]) || 0;
+    manhoursByContract[c.id] = mh;
+    ltiByContract[c.id] = lti;
+    totalManhours += mh;
+    totalLTI += lti;
+  });
+
   let rows = '';
   CONFIG.table1Indicators.forEach(ind => {
+    const isLTIF = ind === 'Loss Time Injury Frequency (LTIF)';
+
     let total = 0;
     const cells = contracts.map(c => {
-      const val = table1Data[ind]?.[c.id];
-      if (val !== null && val !== undefined) total += parseFloat(val) || 0;
-      return `<td>${val !== null && val !== undefined ? formatNumber(val) : '-'}</td>`;
+      if (isLTIF) {
+        // LTIF = (LTI x 1,000,000) / Manhours
+        const mh = manhoursByContract[c.id];
+        const lti = ltiByContract[c.id];
+        const ltif = (mh > 0) ? (lti * 1000000) / mh : null;
+        return `<td>${ltif !== null ? formatNumber(ltif) : '-'}</td>`;
+      } else {
+        const val = table1Data[ind]?.[c.id];
+        if (val !== null && val !== undefined) total += parseFloat(val) || 0;
+        return `<td>${val !== null && val !== undefined ? formatNumber(val) : '-'}</td>`;
+      }
     }).join('');
+
+    // Calculate total column
+    let totalDisplay;
+    if (isLTIF) {
+      // LTIF total = (Total LTI x 1,000,000) / Total Manhours
+      totalDisplay = (totalManhours > 0) ? formatNumber((totalLTI * 1000000) / totalManhours) : '-';
+    } else {
+      totalDisplay = total ? formatNumber(total) : '-';
+    }
 
     rows += `<tr>
       <td>${ind}</td>
       ${cells}
-      <td class="total-col">${total ? formatNumber(total) : '-'}</td>
+      <td class="total-col">${totalDisplay}</td>
     </tr>`;
   });
 
@@ -322,16 +355,32 @@ function renderInputTable1(contracts) {
     }).join('');
 
     // Calculate total
-    let total = 0;
-    contracts.forEach(c => {
-      const val = currentData?.table1?.[ind]?.[c.id];
-      if (val !== null && val !== undefined && val !== '') total += parseFloat(val) || 0;
-    });
+    const isLTIF = ind === 'Loss Time Injury Frequency (LTIF)';
+    let totalDisplay;
+
+    if (isLTIF) {
+      // LTIF = (Total LTI x 1,000,000) / Total Manhours
+      let totalMH = 0, totalLTI = 0;
+      contracts.forEach(c => {
+        const mh = parseFloat(currentData?.table1?.['Manhours']?.[c.id]) || 0;
+        const lti = parseFloat(currentData?.table1?.['Loss Time Injury (LTI)']?.[c.id]) || 0;
+        totalMH += mh;
+        totalLTI += lti;
+      });
+      totalDisplay = (totalMH > 0) ? formatNumber((totalLTI * 1000000) / totalMH) : '-';
+    } else {
+      let total = 0;
+      contracts.forEach(c => {
+        const val = currentData?.table1?.[ind]?.[c.id];
+        if (val !== null && val !== undefined && val !== '') total += parseFloat(val) || 0;
+      });
+      totalDisplay = total ? formatNumber(total) : '-';
+    }
 
     rows += `<tr>
       <td>${ind}</td>
       ${cells}
-      <td class="total-col" id="total1-${ind.replace(/[^a-zA-Z0-9]/g, '_')}">${total ? formatNumber(total) : '-'}</td>
+      <td class="total-col" id="total1-${ind.replace(/[^a-zA-Z0-9]/g, '_')}">${totalDisplay}</td>
     </tr>`;
   });
 
@@ -441,14 +490,35 @@ function onInputChange(input) {
 
 function updateTotal1(indicator) {
   const contracts = CONFIG.projects[currentProject].contracts;
-  let total = 0;
-  contracts.forEach(c => {
-    const val = currentData?.table1?.[indicator]?.[c.id];
-    if (val !== null && val !== undefined && val !== '') total += parseFloat(val) || 0;
-  });
-  const key = indicator.replace(/[^a-zA-Z0-9]/g, '_');
-  const el = document.getElementById('total1-' + key);
-  if (el) el.textContent = total ? formatNumber(total) : '-';
+  const isLTIF = indicator === 'Loss Time Injury Frequency (LTIF)';
+
+  if (isLTIF) {
+    // LTIF = (Total LTI x 1,000,000) / Total Manhours
+    let totalMH = 0, totalLTI = 0;
+    contracts.forEach(c => {
+      const mh = parseFloat(currentData?.table1?.['Manhours']?.[c.id]) || 0;
+      const lti = parseFloat(currentData?.table1?.['Loss Time Injury (LTI)']?.[c.id]) || 0;
+      totalMH += mh;
+      totalLTI += lti;
+    });
+    const key = indicator.replace(/[^a-zA-Z0-9]/g, '_');
+    const el = document.getElementById('total1-' + key);
+    if (el) el.textContent = (totalMH > 0) ? formatNumber((totalLTI * 1000000) / totalMH) : '-';
+  } else {
+    let total = 0;
+    contracts.forEach(c => {
+      const val = currentData?.table1?.[indicator]?.[c.id];
+      if (val !== null && val !== undefined && val !== '') total += parseFloat(val) || 0;
+    });
+    const key = indicator.replace(/[^a-zA-Z0-9]/g, '_');
+    const el = document.getElementById('total1-' + key);
+    if (el) el.textContent = total ? formatNumber(total) : '-';
+  }
+
+  // Also update LTIF total whenever Manhours or LTI changes
+  if (indicator === 'Manhours' || indicator === 'Loss Time Injury (LTI)') {
+    updateTotal1('Loss Time Injury Frequency (LTIF)');
+  }
 }
 
 function updateTotal2(indicator) {

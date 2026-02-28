@@ -1,7 +1,13 @@
 node_modules/
 uploads/
+data/
 *.pdf
 test_*.js
+test_*.txt
+test_*.ps1
 create_dummy_pdf.js
 find_ip.ps1
 public/test_hse_report.txt
+*.ps1
+p11_*.txt
+p3_*.txt

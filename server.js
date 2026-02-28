@@ -7,6 +7,7 @@ const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
 const { PROJECTS, TABLE1_INDICATORS, TABLE2_INDICATORS, MONTHS, INDICATOR_KEYWORDS } = require('./config');
+const db = require('./database');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,11 +45,6 @@ if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
-// Helper: get file path for a project+month combo
-function getDataPath(projectId, monthId) {
-  return path.join(DATA_DIR, `${projectId}_${monthId}.json`);
-}
-
 // Helper: create empty data structure for a project+month
 function createEmptyData(projectId) {
   const project = PROJECTS[projectId];
@@ -73,26 +69,6 @@ function createEmptyData(projectId) {
   return { table1, table2, lastUpdated: null };
 }
 
-// Helper: load data for a project+month (create empty if not exists)
-function loadData(projectId, monthId) {
-  const filePath = getDataPath(projectId, monthId);
-  if (fs.existsSync(filePath)) {
-    try {
-      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    } catch {
-      return createEmptyData(projectId);
-    }
-  }
-  return createEmptyData(projectId);
-}
-
-// Helper: save data for a project+month
-function saveData(projectId, monthId, data) {
-  data.lastUpdated = new Date().toISOString();
-  const filePath = getDataPath(projectId, monthId);
-  fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf8');
-}
-
 // ============================================================
 // API ROUTES
 // ============================================================
@@ -108,19 +84,19 @@ app.get('/api/config', (req, res) => {
 });
 
 // GET /api/data/:projectId/:monthId — get data for a project+month
-app.get('/api/data/:projectId/:monthId', (req, res) => {
+app.get('/api/data/:projectId/:monthId', async (req, res) => {
   const { projectId, monthId } = req.params;
   if (!PROJECTS[projectId]) return res.status(404).json({ error: 'Project not found' });
-  const data = loadData(projectId, monthId);
+  const data = await db.loadData(projectId, monthId, createEmptyData(projectId));
   res.json(data);
 });
 
 // POST /api/data/:projectId/:monthId — save data for a project+month
-app.post('/api/data/:projectId/:monthId', (req, res) => {
+app.post('/api/data/:projectId/:monthId', async (req, res) => {
   const { projectId, monthId } = req.params;
   if (!PROJECTS[projectId]) return res.status(404).json({ error: 'Project not found' });
 
-  const existing = loadData(projectId, monthId);
+  const existing = await db.loadData(projectId, monthId, createEmptyData(projectId));
   const incoming = req.body;
 
   // Merge incoming data with existing (so different contracts can save independently)
@@ -155,21 +131,24 @@ app.post('/api/data/:projectId/:monthId', (req, res) => {
     });
   }
 
-  saveData(projectId, monthId, existing);
+  await db.saveData(projectId, monthId, existing);
   res.json({ success: true, data: existing });
 });
 
 // GET /api/cumulative/:projectId — get cumulative totals across all months
-app.get('/api/cumulative/:projectId', (req, res) => {
+app.get('/api/cumulative/:projectId', async (req, res) => {
   const { projectId } = req.params;
   if (!PROJECTS[projectId]) return res.status(404).json({ error: 'Project not found' });
 
   const cumulative = createEmptyData(projectId);
   const project = PROJECTS[projectId];
 
+  // Load all months at once (more efficient with database)
+  const allMonthsData = await db.loadAllMonths(projectId, MONTHS, createEmptyData(projectId));
+
   // Sum across all months
   MONTHS.forEach(month => {
-    const monthData = loadData(projectId, month.id);
+    const monthData = allMonthsData[month.id] || createEmptyData(projectId);
 
     TABLE1_INDICATORS.forEach(ind => {
       project.contracts.forEach(c => {
@@ -347,7 +326,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// --- Start server (listen on all network interfaces so office colleagues can access) ---
+// --- Connect to database, then start server ---
+db.connectDB().then(() => {
 app.listen(PORT, '0.0.0.0', () => {
   // Find local IP address for sharing
   const os = require('os');
@@ -368,5 +348,7 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`    http://localhost:${PORT}`);
   console.log(`\n  For YOUR COLLEAGUES (share this link):`);
   console.log(`    http://${localIP}:${PORT}`);
-  console.log(`\n  Keep this window open while people are using the app.\n`);
+  console.log(`\n  Keep this window open while people are using the app.`);
+  console.log(`  Database: ${db.isConnected() ? 'MongoDB (persistent)' : 'JSON files (temporary)'}\n`);
 });
+}); // end connectDB
